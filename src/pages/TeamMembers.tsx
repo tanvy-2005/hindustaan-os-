@@ -63,6 +63,29 @@ export default function TeamMembers({ session }: { session?: any }) {
   const onlineCount = MOCK_INTERNS.filter(i => i.status === 'Online').length;
   const leaveCount = MOCK_INTERNS.filter(i => i.status === 'Leave').length;
 
+  // Filter Logic
+  const filteredInterns = MOCK_INTERNS.filter(intern => {
+    // Search
+    const searchLower = searchTerm.toLowerCase();
+    const matchesSearch = searchTerm === '' || 
+      intern.name.toLowerCase().includes(searchLower) ||
+      intern.email.toLowerCase().includes(searchLower) ||
+      intern.skills.some(skill => skill.toLowerCase().includes(searchLower));
+    
+    // Department Filter
+    let matchesDept = false;
+    if (deptFilter === 'all') matchesDept = true;
+    else if (deptFilter === 'frontend' && intern.department === 'Frontend') matchesDept = true;
+    else if (deptFilter === 'backend' && intern.department === 'Backend') matchesDept = true;
+    else if (deptFilter === 'aiml' && intern.department === 'AI/ML') matchesDept = true;
+    else if (deptFilter === 'uiux' && intern.department === 'UI/UX') matchesDept = true;
+
+    // Status Filter
+    const matchesStatus = statusFilter === 'all' || intern.status.toLowerCase() === statusFilter;
+
+    return matchesSearch && matchesDept && matchesStatus;
+  });
+
   // Handlers
   const handleInviteSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -73,7 +96,7 @@ export default function TeamMembers({ session }: { session?: any }) {
   };
 
   return (
-    <div className="flex-1 space-y-6 animate-in fade-in duration-300 pb-10">
+    <div className="flex-1 p-4 sm:p-6 lg:p-8 w-full max-w-[1600px] mx-auto space-y-6 animate-in fade-in duration-300 pb-10">
       
       {/* Header & Actions */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -195,6 +218,7 @@ export default function TeamMembers({ session }: { session?: any }) {
                 <SelectItem value="frontend">Frontend</SelectItem>
                 <SelectItem value="backend">Backend</SelectItem>
                 <SelectItem value="aiml">AI/ML</SelectItem>
+                <SelectItem value="uiux">UI/UX</SelectItem>
               </SelectContent>
             </Select>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
@@ -217,7 +241,7 @@ export default function TeamMembers({ session }: { session?: any }) {
 
       {/* Grid of Interns */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 md:gap-5">
-        {MOCK_INTERNS.map((intern) => (
+        {filteredInterns.map((intern) => (
           <Card 
             key={intern.id} 
             className="rounded-2xl border-slate-200 dark:border-slate-800 shadow-sm hover:border-orange-500/50 dark:hover:border-orange-500/50 transition-colors cursor-pointer flex flex-col group overflow-hidden"
