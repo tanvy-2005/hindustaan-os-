@@ -27,6 +27,7 @@ import { cn } from '@/lib/utils';
 import { useTheme } from '@/context/ThemeContext';
 import { GlobalSearch } from '../dashboard/GlobalSearch';
 import { NotificationCenter } from '../dashboard/NotificationCenter';
+import { EmployeeNotificationCenter } from '../dashboard/EmployeeNotificationCenter';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -239,7 +240,7 @@ export default function DashboardShell({
                   {isDark ? <Sun className="h-6 w-6" /> : <Moon className="h-6 w-6" />}
                 </button>
 
-                <NotificationCenter />
+                {role === 'manager' ? <NotificationCenter /> : <EmployeeNotificationCenter />}
               </div>
               
             </div>

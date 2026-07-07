@@ -66,20 +66,17 @@ export function EmployeeCalendar() {
               onMonthChange={setSelectedMonth}
               startMonth={startDate}
               endMonth={endDate}
-              className="w-full border-0 p-0"
+              className="w-full flex justify-center border-0 p-0"
               classNames={{
-                months: "w-full flex flex-col relative",
-                month: "w-full",
-                month_caption: "flex justify-center pt-1 items-center text-slate-900 dark:text-white font-bold mb-4 w-full",
+                months: "w-full flex flex-col items-center",
+                month: "w-full space-y-4",
+                month_caption: "flex justify-center pt-1 items-center text-slate-900 dark:text-white font-bold w-full mb-2",
                 caption_label: "text-sm font-bold text-slate-900 dark:text-white",
                 nav: "absolute inset-x-0 top-0 flex w-full items-center justify-between",
-                button_previous: "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100 text-slate-900 dark:text-white flex items-center justify-center rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors z-10",
-                button_next: "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100 text-slate-900 dark:text-white flex items-center justify-center rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors z-10",
-                month_grid: "w-full border-collapse",
-                weekdays: "grid grid-cols-7 gap-y-2 mb-2 w-full",
-                weekday: "text-slate-500 dark:text-slate-400 font-bold text-[10px] uppercase text-center flex items-center justify-center h-9",
-                week: "grid grid-cols-7 gap-y-2 w-full mt-2",
-                day: "h-9 w-9 p-0 text-sm font-bold rounded-xl text-slate-700 dark:text-slate-300 transition-colors cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center mx-auto aria-selected:opacity-100",
+                button_previous: "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100 text-slate-900 dark:text-white flex items-center justify-center rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors z-10 absolute left-1",
+                button_next: "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100 text-slate-900 dark:text-white flex items-center justify-center rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors z-10 absolute right-1",
+                weekday: "text-slate-500 dark:text-slate-400 font-bold text-[10px] uppercase text-center w-9",
+                day: "h-9 w-9 p-0 text-sm font-bold rounded-xl text-slate-700 dark:text-slate-300 transition-colors cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center aria-selected:opacity-100",
                 outside: "text-slate-300 dark:text-slate-600 opacity-50 pointer-events-none",
                 disabled: "text-slate-300 dark:text-slate-600 opacity-50",
                 hidden: "invisible",

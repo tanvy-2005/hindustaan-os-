@@ -293,12 +293,12 @@ export default function InternDashboard() {
           {/* Refactored Training Calendar */}
           <EmployeeCalendar />
 
-          {/* Recent Activity */}
+          {/* Recent Highlights */}
           <Card className="rounded-2xl border-slate-200 dark:border-slate-800 shadow-sm flex flex-col flex-1 overflow-hidden">
             <CardHeader className="p-4 md:p-5 pb-3 border-b border-slate-100 dark:border-slate-800">
               <CardTitle className="text-base font-bold flex items-center text-slate-900 dark:text-white">
                 <Activity className="h-4 w-4 text-orange-500 mr-2" />
-                Recent Activity
+                Recent Highlights
               </CardTitle>
             </CardHeader>
             <CardContent className="p-4 md:p-5 pt-0">
