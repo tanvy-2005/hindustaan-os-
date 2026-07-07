@@ -20,7 +20,8 @@ import {
   Trophy,
   Users,
   Settings,
-  ChevronDown
+  ChevronDown,
+  User
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTheme } from '@/context/ThemeContext';
@@ -36,11 +37,14 @@ import {
 
 const internNavigation = [
   { name: 'Dashboard', icon: LayoutDashboard },
-  { name: 'Projects', icon: FolderKanban },
-  { name: 'Tasks', icon: CheckSquare },
-  { name: 'Time Tracking', icon: Clock },
+  { name: 'My Tasks', icon: CheckSquare },
+  { name: 'Work Logs', icon: Clock },
+  { name: 'Daily Standup', icon: Mic },
+  { name: 'My Projects', icon: FolderKanban },
   { name: 'Milestones', icon: Flag },
-  { name: 'About Us', icon: Info },
+  { name: 'My Performance', icon: Trophy },
+  { name: 'My Profile', icon: User },
+  { name: 'Settings', icon: Settings },
 ];
 
 const managerNavigation = [
