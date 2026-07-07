@@ -1,0 +1,347 @@
+import React, { useState, useEffect } from 'react';
+import { Calendar, User, MessageSquare, Send, Tag, Clock, CheckCircle2, ChevronDown } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+
+// --- Types ---
+export type Role = 'manager' | 'intern';
+export type Priority = 'High' | 'Normal' | 'Low';
+export type Status = 'To Do' | 'In Progress' | 'In Review' | 'Done';
+
+export interface UserProfile {
+  id: string;
+  role: Role;
+  name: string;
+}
+
+export interface Task {
+  id: string;
+  title: string;
+  description: string;
+  project_tag: string;
+  assignee_name: string;
+  assignee_id: string;
+  priority: Priority;
+  due_date: string;
+  status: Status;
+}
+
+export interface Comment {
+  id: string;
+  author_name: string;
+  text: string;
+  timestamp: string;
+}
+
+interface TaskDetailsModalProps {
+  task: Task | null;
+  currentUser: UserProfile;
+  isOpen: boolean;
+  onClose: () => void;
+  onUpdateTask?: (updatedTask: Task) => void;
+}
+
+const STATUSES: Status[] = ['To Do', 'In Progress', 'In Review', 'Done'];
+
+const MOCK_TEAM = [
+  { id: 'u-1', name: 'Amanda Smith' },
+  { id: 'u-2', name: 'Rahul Sharma' },
+  { id: 'u-3', name: 'Priya Patel' },
+  { id: 'u-4', name: 'Tanvy' },
+];
+
+export default function TaskDetailsModal({ task, currentUser, isOpen, onClose, onUpdateTask }: TaskDetailsModalProps) {
+  const [editedTask, setEditedTask] = useState<Task | null>(null);
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [newComment, setNewComment] = useState('');
+
+  // Sync internal state when a new task is opened
+  useEffect(() => {
+    if (task) {
+      setEditedTask({ ...task });
+      // Mock comments load
+      setComments([
+        {
+          id: 'c-1',
+          author_name: 'System',
+          text: 'Task created and assigned.',
+          timestamp: '2 days ago'
+        }
+      ]);
+    }
+  }, [task]);
+
+  if (!task || !editedTask) return null;
+
+  const isManager = currentUser.role === 'manager';
+  const canEditStatus = isManager || (currentUser.role === 'intern' && currentUser.id === task.assignee_id);
+
+  const handleUpdateField = (field: keyof Task, value: any) => {
+    if (!isManager && field !== 'status') return; // Extra safety guard
+    setEditedTask(prev => prev ? { ...prev, [field]: value } : null);
+    if (onUpdateTask) {
+      onUpdateTask({ ...editedTask, [field]: value });
+    }
+  };
+
+  const handleStatusChange = (newStatus: Status) => {
+    if (!canEditStatus) return;
+    setEditedTask(prev => prev ? { ...prev, status: newStatus } : null);
+    if (onUpdateTask) {
+      onUpdateTask({ ...editedTask, status: newStatus });
+    }
+  };
+
+  const submitComment = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newComment.trim()) return;
+    const comment: Comment = {
+      id: Date.now().toString(),
+      author_name: currentUser.name || 'Current User',
+      text: newComment,
+      timestamp: 'Just now'
+    };
+    setComments(prev => [...prev, comment]);
+    setNewComment('');
+  };
+
+  // Helpers
+  const getInitials = (name: string) => name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+
+  const getPriorityStyles = (priority: Priority) => {
+    switch (priority) {
+      case 'High': return 'bg-rose-100 text-rose-700 dark:bg-rose-500/10 dark:text-rose-300 border-rose-200 dark:border-rose-500/20';
+      case 'Normal': return 'bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-300 border-amber-200 dark:border-amber-500/20';
+      case 'Low': return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300 border-emerald-200 dark:border-emerald-500/20';
+      default: return 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border-slate-200 dark:border-slate-700';
+    }
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={(open: boolean) => !open && onClose()}>
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto p-0 gap-0 border-slate-200 dark:border-slate-700/60 custom-scrollbar">
+        
+        {/* Header Section */}
+        <DialogHeader className="px-6 py-5 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/30 sticky top-0 z-10 shrink-0 text-left">
+          <DialogTitle className="sr-only">Task Details</DialogTitle>
+          <DialogDescription className="sr-only">View and edit task details.</DialogDescription>
+          
+          <div className="flex flex-col gap-2 pt-1 pr-4">
+            <div className="flex items-center space-x-2">
+              <Tag className="h-4 w-4 text-slate-400 dark:text-slate-500" />
+              {isManager ? (
+                <input 
+                  type="text" 
+                  value={editedTask.project_tag}
+                  onChange={(e) => handleUpdateField('project_tag', e.target.value)}
+                  className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider bg-transparent border-b border-dashed border-slate-300 dark:border-slate-600 focus:border-orange-500 focus:outline-none transition-colors pb-0.5"
+                />
+              ) : (
+                <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{editedTask.project_tag}</span>
+              )}
+            </div>
+            
+            {isManager ? (
+              <input 
+                type="text" 
+                value={editedTask.title}
+                onChange={(e) => handleUpdateField('title', e.target.value)}
+                className="text-2xl font-extrabold text-slate-900 dark:text-white bg-transparent outline-none focus:ring-2 focus:ring-orange-500/20 rounded-lg px-2 -ml-2 py-1 transition-all"
+                placeholder="Task Title..."
+              />
+            ) : (
+              <h2 className="text-2xl font-extrabold text-slate-900 dark:text-white py-1">{editedTask.title}</h2>
+            )}
+          </div>
+        </DialogHeader>
+
+        {/* Scrollable Content Body */}
+        <div className="p-6 space-y-8">
+          
+          {/* Status Tracker Segment */}
+          <div>
+            <label className="block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-3">Workflow State</label>
+            <div className="flex flex-wrap gap-2">
+              {STATUSES.map(status => {
+                const isActive = editedTask.status === status;
+                return (
+                  <Button
+                    key={status}
+                    onClick={() => handleStatusChange(status)}
+                    disabled={!canEditStatus}
+                    variant={isActive ? "default" : "outline"}
+                    className={cn(
+                      "rounded-xl font-semibold flex-1 justify-center whitespace-nowrap min-w-[120px]",
+                      isActive && "ring-2 ring-slate-900 dark:ring-slate-700 ring-offset-2 dark:ring-offset-slate-900"
+                    )}
+                  >
+                    {isActive && <CheckCircle2 className="h-4 w-4 mr-2" />}
+                    {status}
+                  </Button>
+                )
+              })}
+            </div>
+            {!canEditStatus && (
+              <p className="text-[10px] text-amber-600 dark:text-amber-500 font-semibold mt-2 flex items-center">
+                * You can only modify the state of tasks explicitly assigned to you.
+              </p>
+            )}
+          </div>
+
+          {/* Metadata Grid Layer */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-50/50 dark:bg-slate-900/30 border border-slate-100 dark:border-slate-800 rounded-2xl p-5">
+            
+            {/* Priority */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider flex items-center">
+                <Clock className="h-3.5 w-3.5 mr-1.5" /> Priority Level
+              </label>
+              {isManager ? (
+                <div className="relative">
+                  <select 
+                    value={editedTask.priority}
+                    onChange={(e) => handleUpdateField('priority', e.target.value as Priority)}
+                    className={cn(
+                      "appearance-none w-full pl-3 pr-8 py-2 rounded-lg text-sm font-semibold border cursor-pointer focus:outline-none focus:ring-2 focus:ring-orange-500/20 transition-all",
+                      getPriorityStyles(editedTask.priority)
+                    )}
+                  >
+                    <option className="bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100" value="High">High</option>
+                    <option className="bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100" value="Normal">Normal</option>
+                    <option className="bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100" value="Low">Low</option>
+                  </select>
+                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 pointer-events-none opacity-50" />
+                </div>
+              ) : (
+                <div className="mt-1">
+                  <span className={cn("px-3 py-1 rounded-md text-sm font-semibold border inline-block", getPriorityStyles(editedTask.priority))}>
+                    {editedTask.priority}
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* Assignee */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider flex items-center">
+                <User className="h-3.5 w-3.5 mr-1.5" /> Assigned Owner
+              </label>
+              <div className="flex items-center space-x-3">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-orange-100 dark:bg-orange-500/20 text-xs font-bold text-orange-700 dark:text-orange-400 border border-orange-200 dark:border-orange-500/20">
+                  {getInitials(editedTask.assignee_name)}
+                </div>
+                {isManager ? (
+                  <select
+                    value={editedTask.assignee_id}
+                    onChange={(e) => {
+                      const selected = MOCK_TEAM.find(u => u.id === e.target.value);
+                      if (selected) {
+                        handleUpdateField('assignee_id', selected.id);
+                        handleUpdateField('assignee_name', selected.name);
+                      }
+                    }}
+                    className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 text-sm font-semibold rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-orange-500/20 cursor-pointer"
+                  >
+                    {MOCK_TEAM.map(member => (
+                      <option className="bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100" key={member.id} value={member.id}>{member.name}</option>
+                    ))}
+                  </select>
+                ) : (
+                  <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">{editedTask.assignee_name}</span>
+                )}
+              </div>
+            </div>
+
+            {/* Due Date */}
+            <div className="space-y-1.5 md:col-span-2">
+              <label className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider flex items-center">
+                <Calendar className="h-3.5 w-3.5 mr-1.5" /> Target Deadline
+              </label>
+              {isManager ? (
+                <input 
+                  type="date"
+                  value={editedTask.due_date ? new Date(editedTask.due_date).toISOString().split('T')[0] : ''}
+                  onChange={(e) => handleUpdateField('due_date', e.target.value)} // Simplifying date format mapping for mockup
+                  className="w-full md:w-1/2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 text-sm font-semibold rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
+                />
+              ) : (
+                <div className="text-sm font-semibold text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-1.5 inline-block">
+                  {editedTask.due_date}
+                </div>
+              )}
+            </div>
+
+          </div>
+
+          {/* Description */}
+          <div>
+            <label className="block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">Detailed Context</label>
+            {isManager ? (
+              <textarea 
+                value={editedTask.description}
+                onChange={(e) => handleUpdateField('description', e.target.value)}
+                className="w-full min-h-[120px] rounded-xl border border-slate-200 dark:border-slate-700/60 bg-slate-50/50 dark:bg-slate-900/30 p-4 text-sm text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-900 focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 outline-none transition-all resize-none"
+                placeholder="Add exhaustive task requirements..."
+              />
+            ) : (
+              <div className="w-full min-h-[100px] rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40 p-4 text-sm text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap">
+                {editedTask.description || 'No description provided.'}
+              </div>
+            )}
+          </div>
+
+          {/* Comments Feed Expansion */}
+          <div className="pt-6 border-t border-slate-100 dark:border-slate-800">
+            <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center mb-6">
+              <MessageSquare className="h-4 w-4 mr-2 text-slate-400 dark:text-slate-500" />
+              Activity & Discussions
+            </h3>
+
+            {/* Thread Timeline */}
+            <div className="space-y-5 mb-6 pl-2 border-l-2 border-slate-100 dark:border-slate-800">
+              {comments.map(comment => (
+                <div key={comment.id} className="relative pl-6">
+                  {/* Timeline Dot */}
+                  <div className="absolute -left-[25px] top-1.5 h-3 w-3 rounded-full bg-slate-200 dark:bg-slate-700 border-2 border-white dark:border-slate-900"></div>
+                  
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-xs font-bold text-slate-900 dark:text-slate-100">{comment.author_name}</span>
+                    <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-500">{comment.timestamp}</span>
+                  </div>
+                  <div className="bg-slate-50 dark:bg-slate-800/50 rounded-r-xl rounded-bl-xl p-3 text-sm text-slate-700 dark:text-slate-300 border border-slate-100 dark:border-slate-800">
+                    {comment.text}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Comment Input */}
+            <form onSubmit={submitComment} className="flex gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 text-xs font-bold text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                {getInitials(currentUser.name || 'User')}
+              </div>
+              <div className="flex-1 flex bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 focus-within:border-orange-500 focus-within:ring-4 focus-within:ring-orange-500/10 transition-all p-1 overflow-hidden shadow-sm">
+                <input 
+                  type="text" 
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
+                  className="flex-1 bg-transparent border-none px-3 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none"
+                  placeholder="Write a comment or log an update..."
+                />
+                <Button 
+                  type="submit"
+                  disabled={!newComment.trim()}
+                  className="rounded-lg h-9 w-9 p-0"
+                >
+                  <Send className="h-4 w-4" />
+                </Button>
+              </div>
+            </form>
+          </div>
+
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}

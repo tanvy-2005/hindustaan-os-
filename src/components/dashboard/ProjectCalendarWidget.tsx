@@ -1,0 +1,375 @@
+import React, { useState, useMemo } from 'react';
+import { 
+  Calendar as CalendarIcon, 
+  ChevronRight, 
+  MoreVertical, 
+  Plus, 
+  Video, 
+  Clock, 
+  Flag, 
+  CheckCircle2 
+} from 'lucide-react';
+import { format, isSameDay, isBefore, isAfter, startOfDay, addDays, parseISO, differenceInDays } from 'date-fns';
+import { cn } from '@/lib/utils';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Calendar } from '@/components/ui/calendar';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Separator } from '@/components/ui/separator';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+  TooltipProvider
+} from '@/components/ui/tooltip';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+} from '@/components/ui/sheet';
+
+// Data Structures
+type EventType = 'deadline' | 'completed' | 'milestone' | 'leave';
+
+interface ProjectEvent {
+  id: string;
+  date: Date;
+  type: EventType;
+  title: string;
+  description?: string;
+  assignees?: { name: string; initials: string }[];
+}
+
+const START_DATE = new Date(2026, 6, 1); // July 1, 2026
+const END_DATE = new Date(2026, 9, 1); // October 1, 2026
+
+const MOCK_EVENTS: ProjectEvent[] = [
+  { id: '1', date: new Date(2026, 6, 12), type: 'deadline', title: 'Backend Deadline', assignees: [{ name: 'Rahul Sharma', initials: 'RS' }] },
+  { id: '2', date: new Date(2026, 6, 15), type: 'milestone', title: 'Sprint Planning', assignees: [{ name: 'Amanda Smith', initials: 'AS' }] },
+  { id: '3', date: new Date(2026, 6, 5), type: 'completed', title: 'DB Schema Finalized', assignees: [{ name: 'Rahul Sharma', initials: 'RS' }] },
+  { id: '4', date: new Date(2026, 6, 20), type: 'leave', title: 'Priya on Leave', assignees: [{ name: 'Priya Patel', initials: 'PP' }] },
+  { id: '5', date: new Date(2026, 7, 1), type: 'milestone', title: 'Alpha Release', assignees: [{ name: 'Team', initials: 'TM' }] },
+];
+
+export function ProjectCalendarWidget() {
+  const [date, setDate] = useState<Date>(new Date());
+  const [selectedDay, setSelectedDay] = useState<Date | undefined>(undefined);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
+
+  // Dynamic calculations based on today
+  const today = new Date();
+  
+  // Ensure we render the correct default month. If today is outside the project range, show the nearest valid month.
+  const initialMonth = isBefore(today, START_DATE) ? START_DATE : isAfter(today, END_DATE) ? END_DATE : today;
+  const [month, setMonth] = useState<Date>(initialMonth);
+
+  const totalDays = differenceInDays(END_DATE, START_DATE);
+  const daysCompleted = isBefore(today, START_DATE) ? 0 : isAfter(today, END_DATE) ? totalDays : differenceInDays(today, START_DATE);
+  const daysRemaining = totalDays - daysCompleted;
+  const progressPercent = Math.round((daysCompleted / totalDays) * 100);
+
+  const workingDays = totalDays; // Simplification, could exclude weekends
+
+  // Upcoming events
+  const upcomingEvents = useMemo(() => {
+    return MOCK_EVENTS
+      .filter(e => isAfter(e.date, startOfDay(today)) || isSameDay(e.date, startOfDay(today)))
+      .sort((a, b) => a.date.getTime() - b.date.getTime())
+      .slice(0, 3);
+  }, [today]);
+
+  const handleDayClick = (day: Date) => {
+    setSelectedDay(day);
+    setIsSheetOpen(true);
+  };
+
+  const getDayEvents = (day: Date) => {
+    return MOCK_EVENTS.filter(e => isSameDay(e.date, day));
+  };
+
+  const getEventColor = (type: EventType) => {
+    switch (type) {
+      case 'deadline': return 'bg-rose-500';
+      case 'completed': return 'bg-emerald-500';
+      case 'milestone': return 'bg-purple-500';
+      case 'leave': return 'bg-amber-400';
+      default: return 'bg-slate-400';
+    }
+  };
+
+  return (
+    <Card className="rounded-2xl border-slate-200 dark:border-slate-800 shadow-sm flex flex-col">
+      <CardHeader className="pb-4 border-b border-slate-100 dark:border-slate-800/60 bg-slate-50/30 dark:bg-slate-900/10">
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle className="text-lg font-bold text-slate-900 dark:text-white flex items-center">
+              <CalendarIcon className="mr-2 h-5 w-5 text-orange-500" />
+              Project Timeline
+            </CardTitle>
+            <CardDescription className="text-xs font-semibold mt-1">July 1 - Oct 1, 2026</CardDescription>
+          </div>
+          
+          <div className="flex gap-2">
+            <Badge variant="outline" className="bg-rose-50 text-rose-700 dark:bg-rose-500/10 dark:text-rose-400 border-rose-200 dark:border-rose-500/20 font-bold text-[10px] hidden sm:flex">
+              Deadline Tomorrow
+            </Badge>
+          </div>
+        </div>
+
+        {/* Dashboard Summary */}
+        <div className="grid grid-cols-3 gap-4 pt-4 mt-2 border-t border-slate-100 dark:border-slate-800/60">
+          <div className="flex flex-col">
+            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Working Days</span>
+            <span className="text-xl font-black text-slate-900 dark:text-white">{workingDays}</span>
+          </div>
+          <div className="flex flex-col">
+            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Completed</span>
+            <span className="text-xl font-black text-emerald-600 dark:text-emerald-400">{daysCompleted}</span>
+          </div>
+          <div className="flex flex-col">
+            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Remaining</span>
+            <span className="text-xl font-black text-orange-600 dark:text-orange-400">{daysRemaining}</span>
+          </div>
+        </div>
+
+        <div className="mt-4 flex items-center gap-3">
+          <Progress value={progressPercent} className="h-2 flex-1 bg-slate-100 dark:bg-slate-800 [&>div]:bg-gradient-to-r [&>div]:from-orange-500 [&>div]:to-orange-400" />
+          <span className="text-xs font-bold text-slate-700 dark:text-slate-300">{progressPercent}%</span>
+        </div>
+      </CardHeader>
+
+      <CardContent className="p-0 grid grid-cols-1 xl:grid-cols-2 h-full">
+        {/* Left Side: Calendar & Legend */}
+        <div className="p-4 sm:p-6 flex flex-col items-center border-b xl:border-b-0 xl:border-r border-slate-100 dark:border-slate-800/60 bg-white dark:bg-slate-950/20 w-full overflow-hidden">
+          <TooltipProvider delayDuration={100}>
+          <Calendar
+            mode="single"
+            selected={selectedDay}
+            onSelect={(day) => day && handleDayClick(day)}
+            month={month}
+            onMonthChange={setMonth}
+            startMonth={START_DATE}
+            endMonth={END_DATE}
+            className="rounded-xl border-0 p-2 sm:p-4 bg-white dark:bg-slate-950/50 shadow-inner w-full flex justify-center"
+            classNames={{
+              day: "h-10 w-10 p-0 font-normal aria-selected:opacity-100 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors relative cursor-pointer outline-none focus:ring-2 focus:ring-orange-500/50",
+              today: "bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 font-bold border border-orange-200 dark:border-orange-500/30",
+              selected: "bg-orange-500 text-white hover:bg-orange-600 hover:text-white focus:bg-orange-600 focus:text-white font-bold",
+              weekday: "text-slate-500 dark:text-slate-400 rounded-md w-10 font-bold text-[0.75rem] uppercase",
+              month: "w-full relative text-slate-900 dark:text-white",
+              caption_label: "text-sm font-bold text-slate-900 dark:text-white",
+              button_previous: "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100 text-slate-900 dark:text-white absolute left-1 flex items-center justify-center",
+              button_next: "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100 text-slate-900 dark:text-white absolute right-1 flex items-center justify-center",
+            }}
+            components={{
+              DayButton: ({ day, modifiers, ...props }) => {
+                const isToday = isSameDay(day.date, today);
+                const events = getDayEvents(day.date);
+                
+                return (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        {...props}
+                        className={cn(
+                          "relative h-10 w-10 rounded-lg flex flex-col items-center justify-center font-semibold text-sm transition-all outline-none",
+                          modifiers.selected ? "bg-orange-500 text-white shadow-md shadow-orange-500/20" : 
+                          isToday ? "bg-orange-50 dark:bg-orange-500/10 text-orange-700 dark:text-orange-400 border border-orange-200 dark:border-orange-500/30" : 
+                          "text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800",
+                          modifiers.outside && "text-slate-300 dark:text-slate-600 cursor-default hover:bg-transparent"
+                        )}
+                        onClick={(e) => {
+                          if (!modifiers.outside) {
+                            if (props.onClick) props.onClick(e);
+                            handleDayClick(day.date);
+                          }
+                        }}
+                      >
+                        <span>{day.date.getDate()}</span>
+                        
+                        {/* Event Dots */}
+                        {!modifiers.outside && events.length > 0 && (
+                          <div className="absolute bottom-1 flex gap-0.5">
+                            {events.slice(0, 3).map((e, i) => (
+                              <div key={i} className={cn("h-1 w-1 rounded-full", getEventColor(e.type), modifiers.selected && "bg-white")} />
+                            ))}
+                            {events.length > 3 && <div className={cn("h-1 w-1 rounded-full bg-slate-400", modifiers.selected && "bg-white/70")} />}
+                          </div>
+                        )}
+                      </button>
+                    </TooltipTrigger>
+                    {!modifiers.outside && (
+                      <TooltipContent side="right" className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-medium p-3 rounded-xl shadow-xl border-0 z-[100]">
+                        <p className="font-bold mb-1 border-b border-slate-700 dark:border-slate-200 pb-1">{format(day.date, 'EEEE, MMM d')}</p>
+                        {events.length > 0 ? (
+                          <div className="space-y-1.5 mt-2">
+                            {events.map((e, idx) => (
+                              <div key={idx} className="flex items-center gap-2 text-xs">
+                                <div className={cn("h-2 w-2 rounded-full", getEventColor(e.type))} />
+                                <span>{e.title}</span>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="text-xs text-slate-400 dark:text-slate-500 mt-1 italic">No scheduled events</p>
+                        )}
+                      </TooltipContent>
+                    )}
+                  </Tooltip>
+                );
+              }
+            }}
+          />
+        </TooltipProvider>
+
+        {/* Legend */}
+        <div className="flex flex-wrap justify-center gap-x-4 gap-y-2 mt-4 px-2">
+          <div className="flex items-center gap-1.5"><div className="h-2 w-2 rounded-full bg-orange-500" /><span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase">Today</span></div>
+          <div className="flex items-center gap-1.5"><div className="h-2 w-2 rounded-full bg-emerald-500" /><span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase">Completed</span></div>
+          <div className="flex items-center gap-1.5"><div className="h-2 w-2 rounded-full bg-rose-500" /><span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase">Deadline</span></div>
+          <div className="flex items-center gap-1.5"><div className="h-2 w-2 rounded-full bg-purple-500" /><span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase">Milestone</span></div>
+          <div className="flex items-center gap-1.5"><div className="h-2 w-2 rounded-full bg-amber-400" /><span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase">Leave</span></div>
+        </div>
+        </div>
+
+        {/* Right Side: Upcoming Events & Quick Actions */}
+        <div className="p-4 sm:p-6 flex flex-col h-full bg-slate-50/30 dark:bg-slate-900/10 min-w-0 w-full overflow-hidden">
+          <div className="flex-1 w-full">
+            <div className="flex items-center justify-between mb-4">
+              <h4 className="text-sm font-bold text-slate-900 dark:text-white flex items-center"><Clock className="mr-2 h-4 w-4 text-orange-500" /> Upcoming Events</h4>
+              <Button variant="ghost" size="sm" className="h-6 px-2 text-[10px] font-bold text-orange-600 hover:text-orange-700 hover:bg-orange-50 dark:hover:bg-orange-500/10">View All</Button>
+            </div>
+            <div className="space-y-3">
+              {upcomingEvents.length > 0 ? upcomingEvents.map((evt) => (
+                <div key={evt.id} className="flex items-center gap-3 p-2.5 rounded-xl bg-white dark:bg-slate-950 shadow-sm border border-slate-100 dark:border-slate-800 hover:border-orange-200 dark:hover:border-orange-500/30 transition-all">
+                  <div className="flex flex-col items-center justify-center h-11 w-11 rounded-lg bg-orange-50 dark:bg-orange-500/10 shrink-0">
+                    <span className="text-[10px] font-bold text-orange-600 dark:text-orange-400 uppercase leading-none">{format(evt.date, 'MMM')}</span>
+                    <span className="text-sm font-black text-orange-700 dark:text-orange-300 leading-none mt-1">{format(evt.date, 'dd')}</span>
+                  </div>
+                  <div className="flex flex-col overflow-hidden">
+                    <span className="text-sm font-bold text-slate-900 dark:text-white truncate">{evt.title}</span>
+                    <div className="flex items-center gap-1.5 mt-1">
+                      <div className={cn("h-1.5 w-1.5 rounded-full", getEventColor(evt.type))} />
+                      <span className="text-[10px] font-semibold text-slate-500 capitalize">{evt.type}</span>
+                    </div>
+                  </div>
+                </div>
+              )) : (
+                <div className="text-xs text-slate-500 italic p-4 text-center bg-white dark:bg-slate-950 rounded-xl border border-dashed border-slate-200 dark:border-slate-800">No upcoming events.</div>
+              )}
+            </div>
+          </div>
+
+          {/* Quick Actions */}
+          <div className="flex flex-col sm:flex-row gap-3 w-full mt-6 pt-4 border-t border-slate-100 dark:border-slate-800/60">
+            <Button variant="outline" size="sm" className="flex-1 rounded-xl border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-bold h-10 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 shadow-sm whitespace-nowrap">
+              <Plus className="mr-2 h-4 w-4 text-orange-500" /> New Event
+            </Button>
+            <Button variant="outline" size="sm" className="flex-1 rounded-xl border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-bold h-10 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 shadow-sm whitespace-nowrap">
+              <Video className="mr-2 h-4 w-4 text-orange-500" /> Meeting
+            </Button>
+          </div>
+        </div>
+      </CardContent>
+
+      {/* Side Sheet for Day Details */}
+      <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+        <SheetContent side="right" className="w-full sm:max-w-md bg-white dark:bg-slate-950 border-l border-slate-200 dark:border-slate-800 p-0 flex flex-col shadow-2xl">
+          {selectedDay && (
+            <>
+              <div className="p-6 border-b border-slate-100 dark:border-slate-800/60 bg-slate-50/50 dark:bg-slate-900/30">
+                <SheetHeader>
+                  <SheetTitle className="text-2xl font-black text-slate-900 dark:text-white">
+                    {format(selectedDay, 'EEEE')}
+                  </SheetTitle>
+                  <SheetDescription className="text-sm font-bold text-slate-500 flex items-center">
+                    <CalendarIcon className="mr-1.5 h-4 w-4" />
+                    {format(selectedDay, 'MMMM d, yyyy')}
+                  </SheetDescription>
+                </SheetHeader>
+              </div>
+
+              <ScrollArea className="flex-1 p-6">
+                <div className="space-y-8 pb-10">
+                  
+                  {/* Events Section */}
+                  <div>
+                    <h3 className="text-sm font-bold text-slate-900 dark:text-white mb-4 flex items-center">
+                      <Flag className="mr-2 h-4 w-4 text-orange-500" />
+                      Scheduled Events
+                    </h3>
+                    {getDayEvents(selectedDay).length > 0 ? (
+                      <div className="space-y-3">
+                        {getDayEvents(selectedDay).map(evt => (
+                          <Card key={evt.id} className="border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+                            <div className="flex items-center">
+                              <div className={cn("w-1.5 h-16 shrink-0", getEventColor(evt.type))} />
+                              <div className="p-3 flex-1">
+                                <div className="flex justify-between items-start">
+                                  <div>
+                                    <h4 className="font-bold text-sm text-slate-900 dark:text-white">{evt.title}</h4>
+                                    <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">{evt.type}</span>
+                                  </div>
+                                  {evt.assignees && (
+                                    <div className="flex -space-x-1.5">
+                                      {evt.assignees.map((a, i) => (
+                                        <Avatar key={i} className="h-6 w-6 border-2 border-white dark:border-slate-900">
+                                          <AvatarFallback className="bg-slate-100 dark:bg-slate-800 text-[8px] font-bold">{a.initials}</AvatarFallback>
+                                        </Avatar>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          </Card>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="p-4 rounded-xl border border-dashed border-slate-200 dark:border-slate-800 flex flex-col items-center justify-center text-center">
+                        <CheckCircle2 className="h-6 w-6 text-slate-300 dark:text-slate-600 mb-2" />
+                        <span className="text-sm font-semibold text-slate-500">No events scheduled.</span>
+                        <Button variant="link" className="text-orange-500 h-auto p-0 mt-1 text-xs font-bold">Schedule something</Button>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Activity/Work Logs placeholder */}
+                  <div>
+                    <h3 className="text-sm font-bold text-slate-900 dark:text-white mb-4 flex items-center">
+                      <Clock className="mr-2 h-4 w-4 text-orange-500" />
+                      Work Logs & Standups
+                    </h3>
+                    <div className="space-y-3">
+                      {isBefore(selectedDay, startOfDay(new Date())) ? (
+                         <div className="text-sm text-slate-500 bg-slate-50 dark:bg-slate-900/50 p-3 rounded-lg font-medium">
+                           3 standups submitted. 24 hours logged across team.
+                         </div>
+                      ) : (
+                         <div className="text-sm text-slate-400 italic p-3 text-center border border-slate-100 dark:border-slate-800 rounded-lg">
+                           Logs will appear after end of day.
+                         </div>
+                      )}
+                    </div>
+                  </div>
+
+                </div>
+              </ScrollArea>
+              
+              <div className="p-4 border-t border-slate-100 dark:border-slate-800/60 bg-white dark:bg-slate-950">
+                <Button className="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-xl shadow-md">
+                  Close Details
+                </Button>
+              </div>
+            </>
+          )}
+        </SheetContent>
+      </Sheet>
+    </Card>
+  );
+}
