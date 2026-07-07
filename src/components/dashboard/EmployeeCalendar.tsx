@@ -48,7 +48,7 @@ export function EmployeeCalendar() {
   };
 
   return (
-    <Card className="rounded-2xl border-slate-200 dark:border-slate-800 shadow-sm flex flex-col h-full min-h-[350px]">
+    <Card className="rounded-2xl border-slate-200 dark:border-slate-800 shadow-sm flex flex-col">
       <CardHeader className="pb-3 border-b border-slate-100 dark:border-slate-800 shrink-0">
         <CardTitle className="text-base font-bold flex items-center text-slate-900 dark:text-white">
           <CalendarIcon className="h-4 w-4 text-orange-500 mr-2" />
@@ -68,18 +68,7 @@ export function EmployeeCalendar() {
               endMonth={endDate}
               className="w-full flex justify-center border-0 p-0"
               classNames={{
-                months: "w-full flex flex-col items-center",
-                month: "w-full space-y-4",
-                month_caption: "flex justify-center pt-1 items-center text-slate-900 dark:text-white font-bold w-full mb-2",
-                caption_label: "text-sm font-bold text-slate-900 dark:text-white",
-                nav: "absolute inset-x-0 top-0 flex w-full items-center justify-between",
-                button_previous: "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100 text-slate-900 dark:text-white flex items-center justify-center rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors z-10 absolute left-1",
-                button_next: "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100 text-slate-900 dark:text-white flex items-center justify-center rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors z-10 absolute right-1",
-                weekday: "text-slate-500 dark:text-slate-400 font-bold text-[10px] uppercase text-center w-9",
                 day: "h-9 w-9 p-0 text-sm font-bold rounded-xl text-slate-700 dark:text-slate-300 transition-colors cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center aria-selected:opacity-100",
-                outside: "text-slate-300 dark:text-slate-600 opacity-50 pointer-events-none",
-                disabled: "text-slate-300 dark:text-slate-600 opacity-50",
-                hidden: "invisible",
               }}
               components={{
                 DayButton: ({ day, modifiers, ...props }) => {

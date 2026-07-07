@@ -220,7 +220,7 @@ export default function ManagerDashboard() {
                   <Activity className="h-4 w-4 text-orange-600 dark:text-orange-400 mr-2" />
                   Project Progress Overview
                 </CardTitle>
-                <CardDescription className="text-xs font-semibold mt-1">Top 5 active projects across all cohorts.</CardDescription>
+                <CardDescription className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-1">Top 5 active projects across all cohorts.</CardDescription>
               </div>
               <div className="flex items-center gap-2">
                 <Button variant="ghost" size="sm" className="text-orange-600 dark:text-orange-400 font-semibold hover:bg-orange-50 dark:hover:bg-orange-500/10 hover:text-orange-700 dark:hover:text-orange-300 h-8">
@@ -263,7 +263,7 @@ export default function ManagerDashboard() {
                   <AlertTriangle className="h-4 w-4 text-rose-600 dark:text-rose-400 mr-2" />
                   Active Blockers & Risks
                 </CardTitle>
-                <CardDescription className="text-xs font-semibold mt-1">Impediments requiring your immediate attention.</CardDescription>
+                <CardDescription className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-1">Impediments requiring your immediate attention.</CardDescription>
               </div>
               <Button variant="ghost" size="sm" className="text-rose-600 dark:text-rose-400 font-semibold hover:bg-rose-50 dark:hover:bg-rose-500/10 hover:text-rose-700 dark:hover:text-rose-300">
                 View All
@@ -327,7 +327,7 @@ export default function ManagerDashboard() {
                   <Megaphone className="h-4 w-4 text-orange-600 dark:text-orange-400 mr-2" />
                   Team Activity Feed
                 </CardTitle>
-                <CardDescription className="text-xs font-semibold mt-1">Real-time pulse of workspace execution.</CardDescription>
+                <CardDescription className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-1">Real-time pulse of workspace execution.</CardDescription>
               </div>
             </CardHeader>
             <CardContent className="flex-1 overflow-hidden">

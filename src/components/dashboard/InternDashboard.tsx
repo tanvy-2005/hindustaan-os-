@@ -207,102 +207,102 @@ export default function InternDashboard() {
             </CardContent>
           </Card>
 
-          {/* Contribution Progress & Upcoming Deadlines Row */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5 flex-1">
-            
-            {/* Contribution Progress */}
-            <Card className="rounded-2xl border-slate-200 dark:border-slate-800 shadow-sm flex flex-col">
-              <CardHeader className="p-4 md:p-5 pb-3">
-                <CardTitle className="text-base font-bold text-slate-900 dark:text-white flex items-center">
-                  <Target className="mr-2 h-4 w-4 text-orange-500" />
-                  Contribution Breakdown
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="flex-1 flex flex-col p-4 md:p-5 pt-0">
-                <div className="flex items-end gap-2 mb-4">
-                  <span className="text-5xl font-black text-slate-900 dark:text-white">88%</span>
-                  <span className="text-sm font-bold text-slate-500 mb-1">Overall Score</span>
-                </div>
-                <div className="space-y-3">
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm font-bold text-slate-700 dark:text-slate-300">
-                      <span>Tasks Completed</span>
-                      <span>24 / 30</span>
-                    </div>
-                    <Progress value={80} className="h-2 bg-slate-100 dark:bg-slate-800 [&>div]:bg-emerald-500" />
-                  </div>
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm font-bold text-slate-700 dark:text-slate-300">
-                      <span>Hours Logged</span>
-                      <span>42 / 50</span>
-                    </div>
-                    <Progress value={84} className="h-2 bg-slate-100 dark:bg-slate-800 [&>div]:bg-blue-500" />
-                  </div>
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm font-bold text-slate-700 dark:text-slate-300">
-                      <span>Milestones</span>
-                      <span>2 / 3</span>
-                    </div>
-                    <Progress value={66} className="h-2 bg-slate-100 dark:bg-slate-800 [&>div]:bg-purple-500" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Upcoming Deadlines */}
-            <Card className="rounded-2xl border-slate-200 dark:border-slate-800 shadow-sm flex flex-col overflow-hidden">
-              <CardHeader className="p-4 md:p-5 pb-3 border-b border-slate-100 dark:border-slate-800">
-                <CardTitle className="text-base font-bold text-slate-900 dark:text-white flex items-center">
-                  <AlertCircle className="mr-2 h-4 w-4 text-orange-500" />
-                  Upcoming Deadlines
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-0 flex-1 relative h-[250px]">
-                <ScrollArea className="absolute inset-0 h-full w-full">
-                  <div className="p-4 md:p-5 space-y-4">
-                    <div className="relative pl-6 py-1 before:absolute before:left-2 before:top-2.5 before:bottom-[-16px] before:w-px before:bg-slate-200 dark:before:bg-slate-700">
-                      <div className="absolute left-0 top-2.5 h-4 w-4 rounded-full border-4 border-white dark:border-slate-950 bg-rose-500" />
-                      <span className="text-xs font-black text-rose-600 dark:text-rose-400 uppercase tracking-wider mb-0.5 block">Today</span>
-                      <p className="text-sm font-bold text-slate-900 dark:text-white">Dashboard Review</p>
-                      <Badge variant="outline" className="mt-1.5 text-[10px] border-rose-200 text-rose-700 bg-rose-50 dark:border-rose-900/50 dark:text-rose-400 dark:bg-rose-900/20 font-bold uppercase tracking-wider">High Priority</Badge>
-                    </div>
-                    
-                    <div className="relative pl-6 py-1 before:absolute before:left-2 before:top-2.5 before:bottom-[-16px] before:w-px before:bg-slate-200 dark:before:bg-slate-700">
-                      <div className="absolute left-0 top-2.5 h-4 w-4 rounded-full border-4 border-white dark:border-slate-950 bg-amber-500" />
-                      <span className="text-xs font-black text-amber-600 dark:text-amber-500 uppercase tracking-wider mb-0.5 block">Tomorrow</span>
-                      <p className="text-sm font-bold text-slate-900 dark:text-white">Login UI Adjustments</p>
-                    </div>
-                    
-                    <div className="relative pl-6 py-1">
-                      <div className="absolute left-0 top-2.5 h-4 w-4 rounded-full border-4 border-white dark:border-slate-950 bg-slate-300 dark:bg-slate-600" />
-                      <span className="text-xs font-black text-slate-500 uppercase tracking-wider mb-0.5 block">Friday</span>
-                      <p className="text-sm font-bold text-slate-900 dark:text-white">Sprint Demo Prep</p>
-                    </div>
-                  </div>
-                </ScrollArea>
-              </CardContent>
-            </Card>
-
           </div>
         </div>
+      </div>
 
-        {/* Right Column (4) */}
-        <div className="lg:col-span-4 flex flex-col gap-4 md:gap-5">
+      {/* 3-Column Grid for Metrics and Sidebar */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5 items-start mt-4 md:mt-5">
+            
+        {/* Contribution Progress */}
+        <Card className="rounded-2xl border-slate-200 dark:border-slate-800 shadow-sm flex flex-col">
+          <CardHeader className="p-4 md:p-5 pb-3">
+            <CardTitle className="text-base font-bold text-slate-900 dark:text-white flex items-center">
+              <Target className="mr-2 h-4 w-4 text-orange-500" />
+              Contribution Breakdown
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="flex-1 flex flex-col p-4 md:p-5 pt-0">
+            <div className="flex items-end gap-2 mb-4">
+              <span className="text-5xl font-black text-slate-900 dark:text-white">88%</span>
+              <span className="text-sm font-bold text-slate-500 mb-1">Overall Score</span>
+            </div>
+            <div className="space-y-3">
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm font-bold text-slate-700 dark:text-slate-300">
+                  <span>Tasks Completed</span>
+                  <span>24 / 30</span>
+                </div>
+                <Progress value={80} className="h-2 bg-slate-100 dark:bg-slate-800 [&>div]:bg-emerald-500" />
+              </div>
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm font-bold text-slate-700 dark:text-slate-300">
+                  <span>Hours Logged</span>
+                  <span>42 / 50</span>
+                </div>
+                <Progress value={84} className="h-2 bg-slate-100 dark:bg-slate-800 [&>div]:bg-blue-500" />
+              </div>
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm font-bold text-slate-700 dark:text-slate-300">
+                  <span>Milestones</span>
+                  <span>2 / 3</span>
+                </div>
+                <Progress value={66} className="h-2 bg-slate-100 dark:bg-slate-800 [&>div]:bg-purple-500" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
+        {/* Upcoming Deadlines */}
+        <Card className="rounded-2xl border-slate-200 dark:border-slate-800 shadow-sm flex flex-col overflow-hidden">
+          <CardHeader className="p-4 md:p-5 pb-3 border-b border-slate-100 dark:border-slate-800">
+            <CardTitle className="text-base font-bold text-slate-900 dark:text-white flex items-center">
+              <AlertCircle className="mr-2 h-4 w-4 text-orange-500" />
+              Upcoming Deadlines
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-0 flex-1 relative h-[250px]">
+            <ScrollArea className="absolute inset-0 h-full w-full">
+              <div className="p-4 md:p-5 space-y-4">
+                <div className="relative pl-6 py-1 before:absolute before:left-2 before:top-2.5 before:bottom-[-16px] before:w-px before:bg-slate-200 dark:before:bg-slate-700">
+                  <div className="absolute left-0 top-2.5 h-4 w-4 rounded-full border-4 border-white dark:border-slate-950 bg-rose-500" />
+                  <span className="text-xs font-black text-rose-600 dark:text-rose-400 uppercase tracking-wider mb-0.5 block">Today</span>
+                  <p className="text-sm font-bold text-slate-900 dark:text-white">Dashboard Review</p>
+                  <Badge variant="outline" className="mt-1.5 text-[10px] border-rose-200 text-rose-700 bg-rose-50 dark:border-rose-900/50 dark:text-rose-400 dark:bg-rose-900/20 font-bold uppercase tracking-wider">High Priority</Badge>
+                </div>
+                
+                <div className="relative pl-6 py-1 before:absolute before:left-2 before:top-2.5 before:bottom-[-16px] before:w-px before:bg-slate-200 dark:before:bg-slate-700">
+                  <div className="absolute left-0 top-2.5 h-4 w-4 rounded-full border-4 border-white dark:border-slate-950 bg-amber-500" />
+                  <span className="text-xs font-black text-amber-600 dark:text-amber-500 uppercase tracking-wider mb-0.5 block">Tomorrow</span>
+                  <p className="text-sm font-bold text-slate-900 dark:text-white">Login UI Adjustments</p>
+                </div>
+                
+                <div className="relative pl-6 py-1">
+                  <div className="absolute left-0 top-2.5 h-4 w-4 rounded-full border-4 border-white dark:border-slate-950 bg-slate-300 dark:bg-slate-600" />
+                  <span className="text-xs font-black text-slate-500 uppercase tracking-wider mb-0.5 block">Friday</span>
+                  <p className="text-sm font-bold text-slate-900 dark:text-white">Sprint Demo Prep</p>
+                </div>
+              </div>
+            </ScrollArea>
+          </CardContent>
+        </Card>
 
+        {/* Right Column Wrapper */}
+        <div className="space-y-4 md:space-y-5">
           {/* Refactored Training Calendar */}
           <EmployeeCalendar />
 
           {/* Recent Highlights */}
-          <Card className="rounded-2xl border-slate-200 dark:border-slate-800 shadow-sm flex flex-col flex-1 overflow-hidden">
+          <Card className="rounded-2xl border-slate-200 dark:border-slate-800 shadow-sm flex flex-col flex-1 min-h-[320px] overflow-hidden">
             <CardHeader className="p-4 md:p-5 pb-3 border-b border-slate-100 dark:border-slate-800">
               <CardTitle className="text-base font-bold flex items-center text-slate-900 dark:text-white">
                 <Activity className="h-4 w-4 text-orange-500 mr-2" />
                 Recent Highlights
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-4 md:p-5 pt-0">
-              <div className="space-y-4 pt-4">
+            <CardContent className="p-0 flex-1 relative min-h-[250px]">
+              <ScrollArea className="absolute inset-0 h-full w-full">
+                <div className="p-4 md:p-5 space-y-4">
                 {RECENT_ACTIVITY.map((act, i) => (
                   <div key={act.id} className="relative pl-6 py-1 before:absolute before:left-2 before:top-3 before:bottom-[-16px] before:w-px before:bg-slate-100 dark:before:bg-slate-800 last:before:hidden">
                     <div className="absolute left-[3px] top-2 h-2.5 w-2.5 rounded-full bg-slate-200 dark:bg-slate-700 ring-4 ring-white dark:ring-slate-950" />
@@ -312,10 +312,10 @@ export default function InternDashboard() {
                     <p className="text-[10px] font-bold text-slate-400 mt-0.5 uppercase tracking-wider">{act.time}</p>
                   </div>
                 ))}
-              </div>
+                </div>
+              </ScrollArea>
             </CardContent>
           </Card>
-
         </div>
       </div>
       
