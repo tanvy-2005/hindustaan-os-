@@ -20,7 +20,7 @@ import {
   AlertTriangle, CheckCircle2, ChevronRight, BarChart2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 
 // -- MOCK DATA GENERATOR --
 const generateData = () => {
