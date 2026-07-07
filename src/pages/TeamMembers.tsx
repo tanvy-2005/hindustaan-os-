@@ -1,0 +1,446 @@
+import React, { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Progress } from '@/components/ui/progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Separator } from '@/components/ui/separator';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { 
+  Users, Search, Filter, Plus, Download, MoreVertical, MapPin, 
+  Mail, Phone, GraduationCap, Briefcase, Calendar, CheckCircle2, 
+  MessageSquare, Clock, Trophy, ExternalLink, Activity
+} from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
+
+// Generate 30 realistic mock interns
+const generateMockInterns = () => {
+  const depts = ['Frontend', 'Backend', 'AI/ML', 'UI/UX'];
+  const roles = ['Frontend Developer Intern', 'Backend Developer Intern', 'AI Researcher Intern', 'Product Design Intern'];
+  const projects = ['Dashboard UI Revamp', 'Supabase Migration', 'Predictive Model V2', 'Onboarding Flow'];
+  const statuses = ['Online', 'Busy', 'Offline', 'Leave'];
+  
+  return Array.from({ length: 30 }).map((_, i) => ({
+    id: `INT-2026-${(i + 1).toString().padStart(3, '0')}`,
+    name: i === 0 ? "Tanvy Pandey" : `Intern Member ${i + 1}`,
+    email: i === 0 ? "tanvy.pandey@hindustaan.in" : `intern${i+1}@hindustaan.in`,
+    phone: "+91 9876543210",
+    college: "IIT Delhi",
+    degree: "B.Tech Computer Science",
+    role: roles[i % roles.length],
+    department: depts[i % depts.length],
+    manager: "Aakash Gupta",
+    project: projects[i % projects.length],
+    score: Math.floor(Math.random() * (100 - 65 + 1)) + 65,
+    attendance: Math.floor(Math.random() * (100 - 80 + 1)) + 80,
+    currentTask: i % 3 === 0 ? "Building Team Members UI" : "Writing API Endpoints",
+    hoursLogged: Math.floor(Math.random() * (45 - 20 + 1)) + 20,
+    status: statuses[Math.floor(Math.random() * statuses.length)],
+    joiningDate: "June 1, 2026",
+    expectedEndDate: "Sept 1, 2026",
+    skills: ["React", "TypeScript", "Tailwind CSS", "Node.js"].slice(0, (i % 3) + 2),
+  }));
+};
+
+const MOCK_INTERNS = generateMockInterns();
+
+export default function TeamMembers({ session }: { session?: any }) {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [deptFilter, setDeptFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [selectedIntern, setSelectedIntern] = useState<typeof MOCK_INTERNS[0] | null>(null);
+  const [isInviteOpen, setIsInviteOpen] = useState(false);
+
+  // Stats
+  const totalInterns = MOCK_INTERNS.length;
+  const onlineCount = MOCK_INTERNS.filter(i => i.status === 'Online').length;
+  const leaveCount = MOCK_INTERNS.filter(i => i.status === 'Leave').length;
+
+  // Handlers
+  const handleInviteSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsInviteOpen(false);
+    toast.success("Invitation Sent Successfully", {
+      description: "A temporary password and setup instructions have been emailed to the intern.",
+    });
+  };
+
+  return (
+    <div className="flex-1 space-y-6 animate-in fade-in duration-300 pb-10">
+      
+      {/* Header & Actions */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center">
+            <Users className="mr-2 h-6 w-6 text-orange-500" />
+            Team Members
+          </h2>
+          <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-1">
+            Manage interns, onboarding, assignments, and performance.
+          </p>
+        </div>
+        
+        <div className="flex items-center gap-3">
+          <Button variant="outline" className="rounded-xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-sm font-bold h-10">
+            <Download className="mr-2 h-4 w-4" />
+            Export CSV
+          </Button>
+
+          <Dialog open={isInviteOpen} onOpenChange={setIsInviteOpen}>
+            <DialogTrigger asChild>
+              <Button className="rounded-xl bg-orange-600 hover:bg-orange-700 text-white shadow-sm font-bold h-10">
+                <Plus className="mr-2 h-4 w-4" />
+                Invite Intern
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[600px] rounded-2xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950">
+              <DialogHeader>
+                <DialogTitle className="text-xl font-bold text-slate-900 dark:text-white">Invite New Intern</DialogTitle>
+              </DialogHeader>
+              <form onSubmit={handleInviteSubmit} className="space-y-6 pt-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">First Name</label>
+                    <Input required placeholder="E.g. Aakash" className="rounded-xl" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Last Name</label>
+                    <Input required placeholder="E.g. Gupta" className="rounded-xl" />
+                  </div>
+                  <div className="space-y-1.5 col-span-2">
+                    <label className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Personal Email</label>
+                    <Input required type="email" placeholder="aakash@example.com" className="rounded-xl" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Department</label>
+                    <Select defaultValue="engineering">
+                      <SelectTrigger className="rounded-xl">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="engineering">Engineering</SelectItem>
+                        <SelectItem value="design">Design</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Role</label>
+                    <Input required placeholder="Frontend Intern" className="rounded-xl" />
+                  </div>
+                </div>
+                <div className="flex justify-end gap-3 border-t border-slate-100 dark:border-slate-800 pt-4">
+                  <Button type="button" variant="ghost" onClick={() => setIsInviteOpen(false)} className="rounded-xl font-bold">Cancel</Button>
+                  <Button type="submit" className="rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-bold">Send Invitation</Button>
+                </div>
+              </form>
+            </DialogContent>
+          </Dialog>
+        </div>
+      </div>
+
+      {/* KPI Stats */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
+        <Card className="rounded-2xl border-slate-200 dark:border-slate-800 shadow-sm">
+          <CardContent className="p-5 flex flex-col gap-1">
+            <span className="text-sm font-bold text-slate-500 dark:text-slate-400">Total Interns</span>
+            <span className="text-3xl font-black text-slate-900 dark:text-white">{totalInterns}</span>
+          </CardContent>
+        </Card>
+        <Card className="rounded-2xl border-slate-200 dark:border-slate-800 shadow-sm">
+          <CardContent className="p-5 flex flex-col gap-1">
+            <span className="text-sm font-bold text-slate-500 dark:text-slate-400">Online</span>
+            <span className="text-3xl font-black text-emerald-600 dark:text-emerald-500">{onlineCount}</span>
+          </CardContent>
+        </Card>
+        <Card className="rounded-2xl border-slate-200 dark:border-slate-800 shadow-sm">
+          <CardContent className="p-5 flex flex-col gap-1">
+            <span className="text-sm font-bold text-slate-500 dark:text-slate-400">On Leave</span>
+            <span className="text-3xl font-black text-amber-600 dark:text-amber-500">{leaveCount}</span>
+          </CardContent>
+        </Card>
+        <Card className="rounded-2xl border-slate-200 dark:border-slate-800 shadow-sm">
+          <CardContent className="p-5 flex flex-col gap-1">
+            <span className="text-sm font-bold text-slate-500 dark:text-slate-400">Pending Invitations</span>
+            <span className="text-3xl font-black text-blue-600 dark:text-blue-500">5</span>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Filters & Search */}
+      <Card className="rounded-2xl border-slate-200 dark:border-slate-800 shadow-sm">
+        <CardContent className="p-4 flex flex-col md:flex-row gap-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+            <Input 
+              placeholder="Search by name, email, skills..." 
+              className="pl-9 rounded-xl bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-700"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          <div className="flex items-center gap-3 w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
+            <Select value={deptFilter} onValueChange={setDeptFilter}>
+              <SelectTrigger className="w-[140px] rounded-xl bg-slate-50 dark:bg-slate-900/50">
+                <SelectValue placeholder="Department" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Depts</SelectItem>
+                <SelectItem value="frontend">Frontend</SelectItem>
+                <SelectItem value="backend">Backend</SelectItem>
+                <SelectItem value="aiml">AI/ML</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-[120px] rounded-xl bg-slate-50 dark:bg-slate-900/50">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Status</SelectItem>
+                <SelectItem value="online">Online</SelectItem>
+                <SelectItem value="busy">Busy</SelectItem>
+                <SelectItem value="leave">Leave</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button variant="outline" size="icon" className="rounded-xl shrink-0">
+              <Filter className="h-4 w-4" />
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Grid of Interns */}
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 md:gap-5">
+        {MOCK_INTERNS.map((intern) => (
+          <Card 
+            key={intern.id} 
+            className="rounded-2xl border-slate-200 dark:border-slate-800 shadow-sm hover:border-orange-500/50 dark:hover:border-orange-500/50 transition-colors cursor-pointer flex flex-col group overflow-hidden"
+            onClick={() => setSelectedIntern(intern)}
+          >
+            <CardHeader className="p-5 pb-0 border-b border-transparent">
+              <div className="flex justify-between items-start">
+                <div className="flex items-center gap-3">
+                  <div className="relative">
+                    <Avatar className="h-12 w-12 border-2 border-white dark:border-slate-950 shadow-sm">
+                      <AvatarFallback className="bg-orange-100 dark:bg-orange-900/40 text-orange-600 dark:text-orange-400 font-bold">
+                        {intern.name.split(' ').map(n => n[0]).join('')}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className={cn(
+                      "absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-white dark:border-slate-950",
+                      intern.status === 'Online' ? "bg-emerald-500" :
+                      intern.status === 'Busy' ? "bg-rose-500" :
+                      intern.status === 'Leave' ? "bg-amber-500" : "bg-slate-400"
+                    )} />
+                  </div>
+                  <div>
+                    <CardTitle className="text-base font-bold text-slate-900 dark:text-white group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors">
+                      {intern.name}
+                    </CardTitle>
+                    <CardDescription className="text-xs font-semibold text-slate-500 line-clamp-1 mt-0.5">
+                      {intern.role}
+                    </CardDescription>
+                  </div>
+                </div>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 -mr-2 text-slate-400 hover:text-slate-900 dark:hover:text-white" onClick={(e) => e.stopPropagation()}>
+                      <MoreVertical className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48 rounded-xl">
+                    <DropdownMenuItem className="font-medium cursor-pointer"><CheckCircle2 className="mr-2 h-4 w-4" /> Assign Task</DropdownMenuItem>
+                    <DropdownMenuItem className="font-medium cursor-pointer"><MessageSquare className="mr-2 h-4 w-4" /> Send WhatsApp</DropdownMenuItem>
+                    <DropdownMenuItem className="font-medium cursor-pointer text-rose-600 dark:text-rose-400"><Clock className="mr-2 h-4 w-4" /> Deactivate</DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </CardHeader>
+            <CardContent className="p-5 flex-1 flex flex-col gap-4">
+              
+              <div className="grid grid-cols-2 gap-3 bg-slate-50 dark:bg-slate-900/50 rounded-xl p-3">
+                <div>
+                  <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Score</p>
+                  <p className="text-sm font-black text-slate-900 dark:text-white flex items-center">
+                    <Trophy className="h-3 w-3 text-orange-500 mr-1" /> {intern.score}%
+                  </p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Logged</p>
+                  <p className="text-sm font-black text-slate-900 dark:text-white flex items-center">
+                    <Clock className="h-3 w-3 text-blue-500 mr-1" /> {intern.hoursLogged} hrs
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-1.5 flex-1">
+                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Current Task</p>
+                <p className="text-sm font-medium text-slate-700 dark:text-slate-300 line-clamp-1 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-md">
+                  {intern.currentTask}
+                </p>
+              </div>
+              
+              <div className="flex flex-wrap gap-1.5 mt-auto">
+                {intern.skills.map(skill => (
+                  <Badge key={skill} variant="secondary" className="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 border-0 rounded text-[10px] px-1.5">
+                    {skill}
+                  </Badge>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Intern Profile Drawer (Sheet) */}
+      <Sheet open={!!selectedIntern} onOpenChange={(open) => !open && setSelectedIntern(null)}>
+        <SheetContent className="w-full sm:max-w-md lg:max-w-lg overflow-y-auto bg-white dark:bg-slate-950 border-l border-slate-200 dark:border-slate-800 p-0 rounded-l-3xl">
+          {selectedIntern && (
+            <div className="flex flex-col min-h-full">
+              {/* Cover & Header */}
+              <div className="h-32 bg-gradient-to-br from-orange-500 to-rose-600 relative rounded-tl-3xl shrink-0">
+                <div className="absolute -bottom-10 left-6">
+                  <Avatar className="h-24 w-24 border-4 border-white dark:border-slate-950 shadow-md">
+                    <AvatarFallback className="bg-slate-100 dark:bg-slate-800 text-3xl font-black text-slate-900 dark:text-white">
+                      {selectedIntern.name.split(' ').map(n => n[0]).join('')}
+                    </AvatarFallback>
+                  </Avatar>
+                </div>
+              </div>
+              
+              <div className="pt-14 px-6 pb-6 border-b border-slate-100 dark:border-slate-800 shrink-0">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <SheetTitle className="text-2xl font-black text-slate-900 dark:text-white">
+                      {selectedIntern.name}
+                    </SheetTitle>
+                    <p className="text-sm font-bold text-slate-500 mt-1">{selectedIntern.role}</p>
+                    <Badge variant="outline" className="mt-3 rounded text-xs font-bold bg-slate-50 dark:bg-slate-900/50">
+                      {selectedIntern.id}
+                    </Badge>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button size="icon" variant="outline" className="rounded-full shadow-sm">
+                      <Mail className="h-4 w-4 text-slate-600 dark:text-slate-400" />
+                    </Button>
+                    <Button size="icon" className="rounded-full shadow-sm bg-orange-600 hover:bg-orange-700 text-white">
+                      <MessageSquare className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex-1 overflow-y-auto">
+                <Tabs defaultValue="overview" className="w-full">
+                  <div className="px-6 border-b border-slate-100 dark:border-slate-800 sticky top-0 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md z-10">
+                    <TabsList className="bg-transparent border-0 p-0 h-12 w-full justify-start gap-6 rounded-none">
+                      <TabsTrigger value="overview" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-orange-500 rounded-none px-0 h-12 font-bold text-slate-500 data-[state=active]:text-slate-900 dark:data-[state=active]:text-white">Overview</TabsTrigger>
+                      <TabsTrigger value="activity" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-orange-500 rounded-none px-0 h-12 font-bold text-slate-500 data-[state=active]:text-slate-900 dark:data-[state=active]:text-white">Activity</TabsTrigger>
+                      <TabsTrigger value="performance" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-orange-500 rounded-none px-0 h-12 font-bold text-slate-500 data-[state=active]:text-slate-900 dark:data-[state=active]:text-white">Performance</TabsTrigger>
+                    </TabsList>
+                  </div>
+
+                  <TabsContent value="overview" className="m-0 p-6 space-y-8">
+                    {/* Contact Info */}
+                    <div className="space-y-4">
+                      <h4 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider">Contact & Info</h4>
+                      <div className="grid grid-cols-1 gap-4">
+                        <div className="flex items-center gap-3 text-sm font-medium text-slate-600 dark:text-slate-400">
+                          <Mail className="h-4 w-4 text-slate-400 shrink-0" /> {selectedIntern.email}
+                        </div>
+                        <div className="flex items-center gap-3 text-sm font-medium text-slate-600 dark:text-slate-400">
+                          <Phone className="h-4 w-4 text-slate-400 shrink-0" /> {selectedIntern.phone}
+                        </div>
+                        <div className="flex items-center gap-3 text-sm font-medium text-slate-600 dark:text-slate-400">
+                          <GraduationCap className="h-4 w-4 text-slate-400 shrink-0" /> {selectedIntern.college} - {selectedIntern.degree}
+                        </div>
+                      </div>
+                    </div>
+
+                    <Separator className="bg-slate-100 dark:bg-slate-800" />
+
+                    {/* Internship Details */}
+                    <div className="space-y-4">
+                      <h4 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider">Internship Details</h4>
+                      <div className="grid grid-cols-2 gap-y-4 gap-x-8">
+                        <div>
+                          <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Department</p>
+                          <p className="text-sm font-bold text-slate-900 dark:text-white">{selectedIntern.department}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Project</p>
+                          <p className="text-sm font-bold text-slate-900 dark:text-white">{selectedIntern.project}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Manager</p>
+                          <p className="text-sm font-bold text-slate-900 dark:text-white flex items-center">
+                            <Avatar className="h-5 w-5 mr-2 inline-block"><AvatarFallback className="text-[8px] bg-slate-200 dark:bg-slate-800 text-slate-900 dark:text-white font-bold">AG</AvatarFallback></Avatar>
+                            {selectedIntern.manager}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Duration</p>
+                          <p className="text-sm font-bold text-slate-900 dark:text-white">{selectedIntern.joiningDate} - {selectedIntern.expectedEndDate}</p>
+                        </div>
+                      </div>
+                    </div>
+
+                  </TabsContent>
+                  
+                  <TabsContent value="activity" className="m-0 p-6">
+                    <div className="space-y-6">
+                      <div className="relative pl-6 py-2 before:absolute before:left-2 before:top-4 before:bottom-[-24px] before:w-px before:bg-slate-200 dark:before:bg-slate-800">
+                        <div className="absolute left-[3px] top-4 h-2.5 w-2.5 rounded-full bg-emerald-500 ring-4 ring-white dark:ring-slate-950" />
+                        <p className="text-sm font-bold text-slate-900 dark:text-white">Task Completed: Dashboard Analytics UI</p>
+                        <p className="text-xs font-semibold text-slate-500 mt-1">Today, 2:30 PM</p>
+                      </div>
+                      <div className="relative pl-6 py-2 before:absolute before:left-2 before:top-4 before:bottom-[-24px] before:w-px before:bg-slate-200 dark:before:bg-slate-800">
+                        <div className="absolute left-[3px] top-4 h-2.5 w-2.5 rounded-full bg-blue-500 ring-4 ring-white dark:ring-slate-950" />
+                        <p className="text-sm font-bold text-slate-900 dark:text-white">Daily Standup Submitted</p>
+                        <p className="text-xs font-semibold text-slate-500 mt-1">Today, 9:15 AM</p>
+                      </div>
+                      <div className="relative pl-6 py-2">
+                        <div className="absolute left-[3px] top-4 h-2.5 w-2.5 rounded-full bg-orange-500 ring-4 ring-white dark:ring-slate-950" />
+                        <p className="text-sm font-bold text-slate-900 dark:text-white">Hours Logged: 6.5 hours</p>
+                        <p className="text-xs font-semibold text-slate-500 mt-1">Yesterday</p>
+                      </div>
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="performance" className="m-0 p-6 space-y-6">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800/60 flex flex-col items-center justify-center text-center">
+                        <span className="text-3xl font-black text-orange-600 dark:text-orange-500 mb-1">{selectedIntern.score}%</span>
+                        <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Contribution</span>
+                      </div>
+                      <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800/60 flex flex-col items-center justify-center text-center">
+                        <span className="text-3xl font-black text-emerald-600 dark:text-emerald-500 mb-1">{selectedIntern.attendance}%</span>
+                        <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Attendance</span>
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-4">
+                      <div className="space-y-1.5">
+                        <div className="flex justify-between text-sm font-bold">
+                          <span className="text-slate-700 dark:text-slate-300">Sprint Progress</span>
+                          <span className="text-slate-900 dark:text-white">75%</span>
+                        </div>
+                        <Progress value={75} className="h-2 bg-slate-100 dark:bg-slate-800 [&>div]:bg-orange-500" />
+                      </div>
+                    </div>
+                  </TabsContent>
+                </Tabs>
+              </div>
+            </div>
+          )}
+        </SheetContent>
+      </Sheet>
+    </div>
+  );
+}

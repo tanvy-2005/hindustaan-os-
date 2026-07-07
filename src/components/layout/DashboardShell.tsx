@@ -56,7 +56,7 @@ const managerNavigation = [
   { name: 'Gantt Timeline', icon: CalendarDays },
   { name: 'Progress Tracker', icon: BarChart2 },
   { name: 'Work Logs', icon: Clock },
-  { name: 'Standups', icon: Mic },
+  { name: 'Daily Standups', icon: Mic },
   { name: 'Contribution Scores', icon: Trophy },
   { name: 'Team Members', icon: Users },
   { name: 'Settings', icon: Settings },
@@ -205,7 +205,7 @@ export default function DashboardShell({
             {/* Greeting */}
             <div className="flex items-center">
               <h1 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white hidden sm:block">
-                {role === 'manager' ? "Manager's Dashboard" : "Employee's Dashboard"}
+                {currentView}
               </h1>
             </div>
 

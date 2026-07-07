@@ -8,6 +8,7 @@ import Milestones from './pages/Milestones';
 import AboutUs from './pages/AboutUs';
 import Projects from './pages/Projects';
 import Settings from './pages/Settings';
+import TeamMembers from './pages/TeamMembers';
 import { createClient } from '@supabase/supabase-js';
 
 // Initialize Supabase client to listen for real-time auth states
@@ -72,8 +73,9 @@ function App() {
             {currentView === 'Projects' && <Projects session={session} />}
             {currentView === 'About Us' && <AboutUs />}
             {currentView === 'Settings' && <Settings session={session} />}
+            {currentView === 'Team Members' && <TeamMembers session={session} />}
             
-            {currentView !== 'Dashboard' && currentView !== 'Tasks' && currentView !== 'Time Tracking' && currentView !== 'Milestones' && currentView !== 'Projects' && currentView !== 'About Us' && currentView !== 'Settings' && (
+            {currentView !== 'Dashboard' && currentView !== 'Tasks' && currentView !== 'Time Tracking' && currentView !== 'Milestones' && currentView !== 'Projects' && currentView !== 'About Us' && currentView !== 'Settings' && currentView !== 'Team Members' && (
               <div className="flex h-[400px] items-center justify-center text-slate-400 dark:text-slate-500">
                 <p>Module "{currentView}" is under construction (Week 4).</p>
               </div>
