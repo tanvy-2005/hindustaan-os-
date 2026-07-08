@@ -81,7 +81,7 @@ const assignTaskSchema = z.object({
   status: z.string(),
   startDate: z.date().optional(),
   dueDate: z.date().optional(),
-  estimatedHours: z.coerce.number().optional(),
+  estimatedHours: z.number().optional(),
   milestone: z.string().optional(),
 }).refine(data => {
   if (data.startDate && data.dueDate) {
@@ -93,10 +93,12 @@ const assignTaskSchema = z.object({
   path: ["dueDate"],
 });
 
+type AssignTaskForm = z.infer<typeof assignTaskSchema>;
+
 export function AssignTaskDialog({ open, onOpenChange }: { open: boolean, onOpenChange: (open: boolean) => void }) {
   const [loading, setLoading] = useState(false);
 
-  const form = useForm<z.infer<typeof assignTaskSchema>>({
+  const form = useForm<AssignTaskForm>({
     resolver: zodResolver(assignTaskSchema),
     defaultValues: {
       title: '',
@@ -105,12 +107,14 @@ export function AssignTaskDialog({ open, onOpenChange }: { open: boolean, onOpen
       assigneeId: '',
       priority: 'Medium',
       status: 'To Do',
+      startDate: undefined,
+      dueDate: undefined,
       estimatedHours: undefined,
       milestone: '',
     },
   });
 
-  const onSubmit = async (values: z.infer<typeof assignTaskSchema>) => {
+  const onSubmit = async (values: AssignTaskForm) => {
     setLoading(true);
     
     // Simulate API call to Supabase
@@ -439,7 +443,19 @@ export function AssignTaskDialog({ open, onOpenChange }: { open: boolean, onOpen
                     <FormItem>
                       <FormLabel className="font-bold text-slate-700 dark:text-slate-300">Est. Hours</FormLabel>
                       <FormControl>
-                        <Input type="number" min="0" step="0.5" placeholder="e.g. 5" className="rounded-lg bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus-visible:ring-orange-500" {...field} />
+                        <Input 
+                          type="number" 
+                          min="0" 
+                          step="0.5" 
+                          placeholder="e.g. 5" 
+                          className="rounded-lg bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus-visible:ring-orange-500" 
+                          {...field} 
+                          value={field.value ?? ""}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            field.onChange(val === "" ? undefined : Number(val));
+                          }}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

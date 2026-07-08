@@ -130,20 +130,7 @@ export default function ContributionScores() {
           </p>
         </div>
         
-        <div className="flex flex-wrap items-center gap-3">
-          <Button variant="outline" className="rounded-xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-sm font-bold">
-            <Calendar className="mr-2 h-4 w-4 text-slate-400" />
-            This Month
-          </Button>
-          <Button variant="outline" className="rounded-xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-sm font-bold">
-            <Download className="mr-2 h-4 w-4" />
-            Export
-          </Button>
-          <Button className="rounded-xl bg-orange-600 hover:bg-orange-700 text-white shadow-sm font-bold">
-            <RefreshCw className="mr-2 h-4 w-4" />
-            Refresh
-          </Button>
-        </div>
+
       </div>
 
       {/* KPI Cards */}
@@ -213,11 +200,11 @@ export default function ContributionScores() {
       </div>
 
       {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[860px]">
         
         {/* Left Column - Main Table */}
-        <div className="lg:col-span-8 space-y-6">
-          <Card className="rounded-2xl border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden flex flex-col h-full">
+        <div className="lg:col-span-8 flex flex-col h-full min-h-0">
+          <Card className="rounded-2xl border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden flex flex-col flex-1 min-h-0">
             <CardHeader className="p-5 border-b border-slate-100 dark:border-slate-800/60 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <CardTitle className="text-lg font-bold text-slate-900 dark:text-white">Team Performance Overview</CardTitle>
@@ -233,7 +220,7 @@ export default function ContributionScores() {
                 />
               </div>
             </CardHeader>
-            <CardContent className="p-0 overflow-auto max-h-[600px] relative">
+            <CardContent className="p-0 overflow-auto flex-1 min-h-0 relative">
               <table className="w-full text-sm text-left relative">
                 <thead className="text-xs text-slate-500 uppercase tracking-wider bg-slate-50 dark:bg-slate-900/50 font-bold sticky top-0 z-20">
                   <tr>
@@ -327,7 +314,7 @@ export default function ContributionScores() {
         </div>
 
         {/* Right Column - Charts & Top Performers */}
-        <div className="lg:col-span-4 space-y-6">
+        <div className="lg:col-span-4 flex flex-col h-full min-h-0 space-y-6 overflow-y-auto pr-1">
           
           {/* Score Distribution Donut */}
           <Card className="rounded-2xl border-slate-200 dark:border-slate-800 shadow-sm">
@@ -379,8 +366,8 @@ export default function ContributionScores() {
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={deptData} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="currentColor" className="text-slate-200 dark:text-slate-800" />
-                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: 'currentColor' }} className="text-slate-500" />
-                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: 'currentColor' }} className="text-slate-500" domain={[60, 100]} />
+                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#94a3b8', fontWeight: 500 }} />
+                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#94a3b8', fontWeight: 500 }} domain={[60, 100]} />
                     <RechartsTooltip cursor={{ fill: 'transparent' }} contentStyle={{ borderRadius: '12px' }} />
                     <Bar dataKey="score" fill={COLORS.orange} radius={[4, 4, 0, 0]} barSize={30} />
                   </BarChart>
