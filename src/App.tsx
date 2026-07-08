@@ -3,6 +3,7 @@ import Login from './pages/Login';
 import DashboardShell from './components/layout/DashboardShell';
 import RoleBasedRouter from './components/dashboard/RoleBasedRouter';
 import TaskBoard from './pages/TaskBoard';
+import TaskManager from './pages/manager/TaskManager';
 import TimeAndStandup from './pages/TimeAndStandup';
 import Milestones from './pages/Milestones';
 import AboutUs from './pages/AboutUs';
@@ -68,7 +69,7 @@ function App() {
             }}
           >
             {currentView === 'Dashboard' && <RoleBasedRouter session={session} />}
-            {currentView === 'Tasks' && <TaskBoard session={session} />}
+            {currentView === 'Tasks' && (session.user?.user_metadata?.role === 'manager' ? <TaskManager /> : <TaskBoard session={session} />)}
             {currentView === 'Time Tracking' && <TimeAndStandup session={session} />}
             {currentView === 'Milestones' && <Milestones session={session} />}
             {currentView === 'Projects' && <Projects session={session} />}

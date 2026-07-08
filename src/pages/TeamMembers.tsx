@@ -111,10 +111,6 @@ export default function TeamMembers({ session }: { session?: any }) {
         </div>
         
         <div className="flex items-center gap-3">
-          <Button variant="outline" className="rounded-xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-sm font-bold h-10">
-            <Download className="mr-2 h-4 w-4" />
-            Export CSV
-          </Button>
 
           <Dialog open={isInviteOpen} onOpenChange={setIsInviteOpen}>
             <DialogTrigger asChild>
